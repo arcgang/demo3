@@ -29,7 +29,7 @@ app.get('/api/cars', (req, res) => {
 
 app.get('/api/cars/:id', (req, res) => {
   const id = parseInt(req.params.id, 10);
-  const car = isNaN(id) ? undefined : cars.find(c => c.id === id);
+  const car = (isNaN(id) || id <= 0) ? undefined : cars.find(c => c.id === id);
 
   if (!car) {
     return res.status(404).json({ error: `Car with id ${req.params.id} not found.` });
@@ -104,7 +104,7 @@ app.post('/api/cars/:id/reviews', async (req, res) => {
 
 app.get('/api/cars/:id/reviews', (req, res) => {
   const id = parseInt(req.params.id, 10);
-  const car = isNaN(id) ? undefined : cars.find(c => c.id === id);
+  const car = (isNaN(id) || id <= 0) ? undefined : cars.find(c => c.id === id);
 
   if (!car) {
     return res.status(404).json({ error: `Car with id ${req.params.id} not found.` });

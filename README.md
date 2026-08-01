@@ -60,6 +60,31 @@ Ratings are in the range **1–5**.
 
 ---
 
+### GET /api/cars/:id
+
+Returns details for a single car including its computed review stats.
+
+**Response** `200 OK`
+```json
+{
+  "id": 1,
+  "make": "Toyota",
+  "model": "Camry",
+  "year": 2022,
+  "description": "A reliable sedan.",
+  "averageRating": 4.3,
+  "reviewCount": 6
+}
+```
+
+- `averageRating` — average of all review ratings rounded to one decimal place; `null` when there are no reviews.
+- `reviewCount` — total number of reviews for this car.
+
+**Errors**
+- `404 Not Found` — no car with the given id exists.
+
+---
+
 ### `POST /api/cars/:id/reviews`
 
 Submits a new review for the car identified by `:id`.
