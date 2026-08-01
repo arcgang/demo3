@@ -46,6 +46,7 @@ export default function CarDetailPage() {
     setLoading(true);
     setError(null);
     setPage(1);
+    setReviews([]);
     fetch(`/api/cars/${id}/reviews`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
