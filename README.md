@@ -57,3 +57,89 @@ Returns all cars with aggregated review statistics.
 | `avg_rating`    | `number\|null`  | Mean rating rounded to 2 decimal places; `null` if no reviews |
 
 Ratings are in the range **1–5**.
+
+---
+
+### `GET /api/cars/:id`
+
+Returns a single car by its identifier.
+
+**Path parameters**
+
+| Parameter | Type     | Notes              |
+| --------- | -------- | ------------------ |
+| `id`      | `number` | Unique car identifier |
+
+**Response** — `200 OK`, `Content-Type: application/json`
+
+```json
+{
+  "id": 1,
+  "make": "Toyota",
+  "model": "Camry",
+  "year": 2022,
+  "thumbnail_url": "https://example.com/camry.jpg",
+  "review_count": 3,
+  "avg_rating": 4
+}
+```
+
+**Error responses**
+
+| Status | Condition                   |
+| ------ | --------------------------- |
+| `404`  | No car with the given `id`  |
+
+---
+
+### `GET /api/cars/:id/reviews`
+
+Returns all reviews for a car, ordered newest-first (`created_at` DESC).
+
+**Path parameters**
+
+| Parameter | Type     | Notes              |
+| --------- | -------- | ------------------ |
+| `id`      | `number` | Unique car identifier |
+
+**Query parameters**
+
+| Parameter | Type     | Default | Notes                                      |
+| --------- | -------- | ------- | ------------------------------------------ |
+| `page`    | `number` | `1`     | 1-based page index                         |
+| `limit`   | `number` | `20`    | Reviews per page; maximum 100              |
+
+**Response** — `200 OK`, `Content-Type: application/json`
+
+```json
+[
+  {
+    "id": 7,
+    "car_id": 1,
+    "reviewer_name": "Alice",
+    "rating": 5,
+    "comment": "Great car, very reliable.",
+    "created_at": "2025-06-15T10:30:00.000Z"
+  }
+]
+```
+
+An empty array `[]` is returned when the car exists but has no reviews.
+
+| Field           | Type     | Notes                             |
+| --------------- | -------- | --------------------------------- |
+| `id`            | `number` | Unique review identifier          |
+| `car_id`        | `number` | Foreign key to the car            |
+| `reviewer_name` | `string` | Display name of the reviewer      |
+| `rating`        | `number` | Integer in the range **1–5**      |
+| `comment`       | `string` | Review body text                  |
+| `created_at`    | `string` | ISO 8601 timestamp (UTC)          |
+
+Reviews are always ordered **newest-first** by `created_at`.
+
+**Error responses**
+
+| Status | Condition                    |
+| ------ | ---------------------------- |
+| `400`  | `id` is not a valid integer  |
+| `404`  | No car with the given `id`   |

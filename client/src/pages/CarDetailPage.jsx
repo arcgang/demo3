@@ -18,7 +18,9 @@ function StarRating({ rating }) {
 
 function ReviewItem({ review }) {
   const date = new Date(review.created_at).toLocaleDateString('en-US', {
+    year: 'numeric',
     month: 'long',
+    day: 'numeric',
   });
 
   return (
@@ -80,13 +82,15 @@ export default function CarDetailPage() {
       )}
 
       {!loading && error && (
-        <h2 className="error-message">
-          Error: could not load reviews. Please try again later.
-        </h2>
+        <div role="alert" className="error-message">
+          <p>Error: could not load reviews. Please try again later.</p>
+        </div>
       )}
 
       {!loading && !error && reviews.length === 0 && (
-        <h2 className="empty-state-message">Be the first to review this car</h2>
+        <div role="status" aria-live="polite" className="empty-state-message">
+          <p>Be the first to review this car</p>
+        </div>
       )}
 
       {!loading && !error && reviews.length > 0 && (
