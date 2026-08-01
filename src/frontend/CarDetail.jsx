@@ -10,6 +10,7 @@ export default function CarDetail() {
   const [rating, setRating] = useState('');
   const [comment, setComment] = useState('');
   const [submitError, setSubmitError] = useState(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
     fetch(`/api/cars/${id}`)
@@ -41,6 +42,7 @@ export default function CarDetail() {
   function handleSubmit(e) {
     e.preventDefault();
     setSubmitError(null);
+    setSubmitSuccess(false);
 
     fetch(`/api/cars/${id}/reviews`, {
       method: 'POST',
@@ -63,6 +65,7 @@ export default function CarDetail() {
         setAuthor('');
         setRating('');
         setComment('');
+        setSubmitSuccess(true);
       })
       .catch(() => {
         setSubmitError('Network error. Please try again.');
@@ -119,6 +122,9 @@ export default function CarDetail() {
         </label>
         {submitError && (
           <div role="alert" style={{ border: '1px solid red', background: '#fee', color: '#900', padding: '0.5rem' }}>{submitError}</div>
+        )}
+        {submitSuccess && (
+          <p role="status">Your review was submitted successfully.</p>
         )}
         <button type="submit">Submit Review</button>
       </form>
