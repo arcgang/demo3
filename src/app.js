@@ -45,7 +45,7 @@ app.post('/api/cars/:id/reviews', (req, res) => {
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     return res.status(400).json({ error: 'rating must be an integer between 1 and 5.' });
   }
-  if (comment !== undefined && typeof comment !== 'string') {
+  if (comment !== undefined && comment !== null && typeof comment !== 'string') {
     return res.status(400).json({ error: 'comment must be a string.' });
   }
   if (!author || typeof author !== 'string' || author.trim() === '') {
