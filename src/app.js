@@ -33,7 +33,7 @@ app.get('/api/cars/:id', (req, res) => {
 });
 
 app.post('/api/cars/:id/reviews', async (req, res) => {
-  const { reviewer_name, rating, comment } = req.body;
+  const { reviewer_name, rating, comment } = req.body ?? {};
   const errors = {};
 
   if (reviewer_name === undefined || reviewer_name === null || typeof reviewer_name !== 'string') {
