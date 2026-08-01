@@ -34,7 +34,9 @@ export default function CarDetail({ carId: carIdProp }) {
       .then((data) => {
         if (Array.isArray(data)) setReviews(data);
       })
-      .catch(() => {});
+      .catch(() => {
+        setSubmitError('Could not load reviews.');
+      });
   }, [id]);
 
   function handleSubmit(e) {
@@ -117,7 +119,7 @@ export default function CarDetail({ carId: carIdProp }) {
           />
         </label>
         {submitError && (
-          <div role="alert">{submitError}</div>
+          <div role="alert" style={{ border: '1px solid red', background: '#fee', color: '#900', padding: '0.5rem' }}>{submitError}</div>
         )}
         <button type="submit">Submit Review</button>
       </form>
