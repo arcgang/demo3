@@ -5,11 +5,11 @@ const cars = [
 ];
 
 const reviews = [
-  { id: 1, carId: 1, reviewer_name: null, rating: 4, comment: null },
-  { id: 2, carId: 1, reviewer_name: null, rating: 5, comment: null },
-  { id: 3, carId: 1, reviewer_name: null, rating: 3, comment: null },
-  { id: 4, carId: 3, reviewer_name: null, rating: 5, comment: null },
-  { id: 5, carId: 3, reviewer_name: null, rating: 4, comment: null },
+  { id: 1, carId: 1, reviewer_name: null, rating: 4, comment: null, created_at: null },
+  { id: 2, carId: 1, reviewer_name: null, rating: 5, comment: null, created_at: null },
+  { id: 3, carId: 1, reviewer_name: null, rating: 3, comment: null, created_at: null },
+  { id: 4, carId: 3, reviewer_name: null, rating: 5, comment: null, created_at: null },
+  { id: 5, carId: 3, reviewer_name: null, rating: 4, comment: null, created_at: null },
 ];
 
 module.exports = { cars, reviews };
