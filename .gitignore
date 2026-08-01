@@ -20,5 +20,6 @@ rad.json
 *.bclicense
 *.flf
 #Test results file
-TestResults.xmlnode_modules/
 dist/
+TestResults.xml
+node_modules/
