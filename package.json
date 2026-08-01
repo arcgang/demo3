@@ -39,11 +39,11 @@
       {
         "displayName": "frontend",
         "testEnvironment": "jsdom",
-        "testMatch": ["<rootDir>/tests/CarDetail.test.jsx"],
+        "testMatch": ["<rootDir>/tests/CarDetail.test.jsx", "<rootDir>/tests/CarDetailReviewSubmission.test.jsx"],
         "transform": {
           "^.+\\.[jt]sx?$": "babel-jest"
         },
-        "setupFilesAfterEnv": ["@testing-library/jest-dom"]
+        "setupFilesAfterEnv": ["@testing-library/jest-dom", "<rootDir>/tests/setupLocation.js"]
       }
     ]
   }
