@@ -1,8 +1,11 @@
 const express = require('express');
+const { Pool } = require('pg');
 const { cars, reviews } = require('./db');
 
 const app = express();
 app.use(express.json());
+
+const pool = new Pool();
 
 app.get('/api/cars', (req, res) => {
   const result = cars.map((car) => {
@@ -47,6 +50,56 @@ app.get('/api/cars/:id', (req, res) => {
     averageRating,
     reviewCount,
   });
+});
+
+app.post('/api/cars/:id/reviews', async (req, res) => {
+  const { reviewer_name, rating, comment } = req.body ?? {};
+  const errors = {};
+
+  if (reviewer_name === undefined || reviewer_name === null || typeof reviewer_name !== 'string') {
+    errors.reviewer_name = 'reviewer_name is required and must be a string';
+  } else if (!reviewer_name.trim().length) {
+    errors.reviewer_name = 'reviewer_name must not be empty';
+  }
+
+  if (
+    rating === undefined ||
+    rating === null ||
+    typeof rating !== 'number' ||
+    !Number.isInteger(rating) ||
+    rating < 1 ||
+    rating > 5
+  ) {
+    errors.rating = 'rating is required and must be an integer between 1 and 5';
+  }
+
+  if (comment === undefined || comment === null || typeof comment !== 'string') {
+    errors.comment = 'comment is required and must be a string with at least 10 characters';
+  } else if (comment.trim().length < 10) {
+    errors.comment = 'comment must be at least 10 characters';
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return res.status(400).json({ errors });
+  }
+
+  const trimmedName = reviewer_name.trim();
+  const trimmedComment = comment.trim();
+  const carId = parseInt(req.params.id, 10);
+
+  if (isNaN(carId) || carId <= 0) {
+    return res.status(404).json({ error: 'Car not found' });
+  }
+
+  try {
+    const result = await pool.query(
+      'INSERT INTO reviews (car_id, reviewer_name, rating, comment) VALUES ($1, $2, $3, $4) RETURNING *',
+      [carId, trimmedName, rating, trimmedComment]
+    );
+    return res.status(201).json(result.rows[0]);
+  } catch (err) {
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.get('/api/cars/:id/reviews', (req, res) => {
@@ -103,56 +156,6 @@ app.get('/api/cars/:id/reviews', (req, res) => {
     comment: r.comment,
     created_at: r.created_at,
   })));
-});
-
-app.post('/api/cars/:id/reviews', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const car = (isNaN(id) || id <= 0) ? undefined : cars.find(c => c.id === id);
-
-  if (!car) {
-    return res.status(404).json({ error: `Car with id ${req.params.id} not found.` });
-  }
-
-  const { rating, comment, author } = req.body;
-
-  if (rating === undefined || rating === null) {
-    return res.status(400).json({ error: 'rating is required.' });
-  }
-  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-    return res.status(400).json({ error: 'rating must be an integer between 1 and 5.' });
-  }
-  if (comment !== undefined && comment !== null && typeof comment !== 'string') {
-    return res.status(400).json({ error: 'comment must be a string.' });
-  }
-  if (!author || typeof author !== 'string' || author.trim() === '') {
-    return res.status(400).json({ error: 'author is required.' });
-  }
-
-  const trimmedAuthor = author.trim();
-  const newReview = {
-    id: reviews.length > 0 ? Math.max(...reviews.map(r => r.id)) + 1 : 1,
-    car_id: id,
-    reviewer_name: trimmedAuthor,
-    rating,
-    comment: comment !== undefined ? comment : null,
-    created_at: new Date().toISOString(),
-  };
-  reviews.push(newReview);
-
-  const carReviews = reviews.filter(r => r.car_id === id);
-  const reviewCount = carReviews.length;
-  const averageRating = Math.round(carReviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount * 10) / 10;
-
-  return res.status(201).json({
-    review: {
-      id: newReview.id,
-      carId: id,
-      rating: newReview.rating,
-      comment: newReview.comment,
-      author: trimmedAuthor,
-    },
-    car: { averageRating, reviewCount },
-  });
 });
 
 module.exports = app;

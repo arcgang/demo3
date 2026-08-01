@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-export default function CarDetail() {
-  const { id } = useParams();
+export default function CarDetail({ carId }) {
+  const params = useParams();
+  const id = carId !== undefined ? carId : params.id;
   const [car, setCar] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [reviews, setReviews] = useState([]);
