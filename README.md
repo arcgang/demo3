@@ -85,46 +85,50 @@ Returns details for a single car including its computed review stats.
 
 ---
 
-### POST /api/cars/:id/reviews
+### `POST /api/cars/:id/reviews`
 
-Submits a new review for a car, stores it, and returns the created review together with the car's recalculated stats.
+Submits a new review for the car identified by `:id`.
 
-**Request body**
+**Request body** — `Content-Type: application/json`
+
 ```json
 {
+  "reviewer_name": "Jane Doe",
   "rating": 4,
-  "author": "Jane Doe",
-  "comment": "Great car!"
+  "comment": "Great car, very comfortable ride."
 }
 ```
 
-| Field     | Type    | Required | Notes |
-|-----------|---------|----------|-------|
-| `rating`  | integer | yes      | 1–5 inclusive |
-| `author`  | string  | yes      | whitespace-only is rejected |
-| `comment` | string  | no       | may be `null` or omitted |
+| Field           | Type     | Constraints                        |
+| --------------- | -------- | ---------------------------------- |
+| `reviewer_name` | `string` | Required; non-blank after trimming |
+| `rating`        | `number` | Required; integer in range 1–5     |
+| `comment`       | `string` | Required; ≥ 10 characters after trimming |
 
-**Response** `201 Created`
+**Response — `201 Created`**
+
 ```json
 {
-  "review": {
-    "id": 7,
-    "carId": 1,
-    "rating": 4,
-    "comment": "Great car!",
-    "author": "Jane Doe"
-  },
-  "car": {
-    "averageRating": 4.3,
-    "reviewCount": 7
+  "id": 7,
+  "car_id": 1,
+  "reviewer_name": "Jane Doe",
+  "rating": 4,
+  "comment": "Great car, very comfortable ride.",
+  "created_at": "2026-08-01T12:00:00.000Z"
+}
+```
+
+**Response — `400 Bad Request`** (validation failure)
+
+```json
+{
+  "errors": {
+    "rating": "Rating must be an integer between 1 and 5",
+    "comment": "Comment must be at least 10 characters"
   }
 }
 ```
 
-- `review.author` is stored trimmed.
-- `review.comment` is `null` when omitted.
-- `car.averageRating` and `car.reviewCount` are recalculated server-side from persisted data; client-supplied values are never trusted.
+**Response — `404 Not Found`** — `:id` is non-numeric or ≤ 0.
 
-**Errors**
-- `400 Bad Request` — validation failure (missing/invalid `rating` or `author`, wrong type for `comment`).
-- `404 Not Found` — no car with the given id exists.
+**Response — `500 Internal Server Error`** — database error.
