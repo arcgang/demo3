@@ -66,8 +66,8 @@ Returns a single car by its identifier.
 
 **Path parameters**
 
-| Parameter | Type     | Notes              |
-| --------- | -------- | ------------------ |
+| Parameter | Type     | Notes                 |
+| --------- | -------- | --------------------- |
 | `id`      | `number` | Unique car identifier |
 
 **Response** — `200 OK`, `Content-Type: application/json`
@@ -84,21 +84,21 @@ Returns a single car by its identifier.
 }
 ```
 
-| Field           | Type           | Notes                                                          |
-| --------------- | -------------- | -------------------------------------------------------------- |
-| `id`            | `number`       | Unique car identifier                                          |
-| `make`          | `string`       | Manufacturer name                                              |
-| `model`         | `string`       | Model name                                                     |
-| `year`          | `number`       | Four-digit model year                                          |
-| `description`   | `string`       | Short description of the car                                   |
-| `averageRating` | `number\|null` | Mean rating rounded to 1 decimal place; `null` if no reviews  |
-| `reviewCount`   | `number`       | Integer count of reviews (≥ 0)                                 |
+| Field           | Type           | Notes                                                         |
+| --------------- | -------------- | ------------------------------------------------------------- |
+| `id`            | `number`       | Unique car identifier                                         |
+| `make`          | `string`       | Manufacturer name                                             |
+| `model`         | `string`       | Model name                                                    |
+| `year`          | `number`       | Four-digit model year                                         |
+| `description`   | `string`       | Short description of the car                                  |
+| `averageRating` | `number\|null` | Mean rating rounded to 1 decimal place; `null` if no reviews |
+| `reviewCount`   | `number`       | Integer count of reviews (≥ 0)                               |
 
 **Error responses**
 
-| Status | Condition                   |
-| ------ | --------------------------- |
-| `404`  | No car with the given `id`  |
+| Status | Condition                  |
+| ------ | -------------------------- |
+| `404`  | No car with the given `id` |
 
 ---
 
@@ -108,16 +108,16 @@ Returns all reviews for a car, ordered newest-first (`created_at` DESC).
 
 **Path parameters**
 
-| Parameter | Type     | Notes              |
-| --------- | -------- | ------------------ |
+| Parameter | Type     | Notes                 |
+| --------- | -------- | --------------------- |
 | `id`      | `number` | Unique car identifier |
 
 **Query parameters**
 
-| Parameter | Type     | Default | Notes                                      |
-| --------- | -------- | ------- | ------------------------------------------ |
-| `page`    | `number` | `1`     | 1-based page index; only used when `limit` is also provided |
-| `limit`   | `number` | all     | If omitted, all reviews are returned; when provided, slices the sorted list to that many per page |
+| Parameter | Type     | Default | Notes                                                                            |
+| --------- | -------- | ------- | -------------------------------------------------------------------------------- |
+| `page`    | `number` | `1`     | 1-based page index; only used when `limit` is also provided                     |
+| `limit`   | `number` | all     | If omitted, all reviews are returned; when provided, slices the sorted list page |
 
 **Response** — `200 OK`, `Content-Type: application/json`
 
@@ -136,20 +136,63 @@ Returns all reviews for a car, ordered newest-first (`created_at` DESC).
 
 An empty array `[]` is returned when the car exists but has no reviews.
 
-| Field           | Type     | Notes                             |
-| --------------- | -------- | --------------------------------- |
-| `id`            | `number` | Unique review identifier          |
-| `car_id`        | `number` | Foreign key to the car            |
-| `reviewer_name` | `string` | Display name of the reviewer      |
-| `rating`        | `number` | Integer in the range **1–5**      |
-| `comment`       | `string\|null` | Review body text; `null` if no comment was left |
-| `created_at`    | `string` | ISO 8601 timestamp (UTC)          |
+| Field           | Type          | Notes                                            |
+| --------------- | ------------- | ------------------------------------------------ |
+| `id`            | `number`      | Unique review identifier                         |
+| `car_id`        | `number`      | Foreign key to the car                           |
+| `reviewer_name` | `string`      | Display name of the reviewer                     |
+| `rating`        | `number`      | Integer in the range **1–5**                     |
+| `comment`       | `string\|null`| Review body text; `null` if no comment was left  |
+| `created_at`    | `string`      | ISO 8601 timestamp (UTC)                         |
 
 Reviews are always ordered **newest-first** by `created_at`.
 
 **Error responses**
 
-| Status | Condition                    |
-| ------ | ---------------------------- |
-| `400`  | `id` is not a valid integer  |
-| `404`  | No car with the given `id`   |
+| Status | Condition                   |
+| ------ | --------------------------- |
+| `400`  | Invalid `page`/`limit` value |
+| `404`  | No car with the given `id`  |
+
+---
+
+### `POST /api/cars/:id/reviews`
+
+Submits a new review for the car identified by `:id`.
+
+**Request body** — `Content-Type: application/json`
+
+```json
+{
+  "reviewer_name": "Jane Doe",
+  "rating": 4,
+  "comment": "Great car, very comfortable ride."
+}
+```
+
+| Field           | Type     | Constraints                                |
+| --------------- | -------- | ------------------------------------------ |
+| `reviewer_name` | `string` | Required; non-blank after trimming         |
+| `rating`        | `number` | Required; integer in range 1–5             |
+| `comment`       | `string` | Required; at least 10 characters (trimmed) |
+
+**Response — `201 Created`**
+
+```json
+{
+  "id": 7,
+  "car_id": 1,
+  "reviewer_name": "Jane Doe",
+  "rating": 4,
+  "comment": "Great car, very comfortable ride.",
+  "created_at": "2026-08-01T12:00:00.000Z"
+}
+```
+
+**Error responses**
+
+| Status | Condition                                 |
+| ------ | ----------------------------------------- |
+| `400`  | Request body validation failed            |
+| `404`  | `:id` is non-numeric, invalid, or missing |
+| `500`  | Database insert failure                   |
