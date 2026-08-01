@@ -214,3 +214,95 @@ body {
   margin-top: 0.4rem;
   font-size: 0.95rem;
 }
+
+/* Star rating */
+.review-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.star {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.star--filled {
+  color: #f5a623;
+}
+
+.star--empty {
+  color: #ccc;
+}
+
+.review-stars__value {
+  font-size: 0.85rem;
+  color: #555;
+  margin-left: 0.25rem;
+}
+
+/* Review card */
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.review-item {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 1rem 1.25rem;
+}
+
+.review-item__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.review-item__name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.review-item__date {
+  font-size: 0.82rem;
+  color: #888;
+  margin-left: auto;
+}
+
+.review-item__comment {
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* Loading indicator */
+.loading-indicator {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #888;
+  font-size: 1rem;
+}
+
+/* Load more button */
+.load-more-btn {
+  display: block;
+  margin: 0 auto;
+  padding: 0.6rem 1.75rem;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.load-more-btn:hover {
+  background: #f0f0f0;
+  border-color: #999;
+}
