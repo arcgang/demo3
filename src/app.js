@@ -38,6 +38,8 @@ app.post('/api/cars/:id/reviews', async (req, res) => {
 
   if (reviewer_name === undefined || reviewer_name === null || typeof reviewer_name !== 'string') {
     errors.reviewer_name = 'reviewer_name is required and must be a string';
+  } else if (!reviewer_name.trim().length) {
+    errors.reviewer_name = 'reviewer_name must not be empty';
   }
 
   if (
@@ -64,6 +66,10 @@ app.post('/api/cars/:id/reviews', async (req, res) => {
   const trimmedName = reviewer_name.trim();
   const trimmedComment = comment.trim();
   const carId = parseInt(req.params.id, 10);
+
+  if (isNaN(carId)) {
+    return res.status(404).json({ error: 'Car not found' });
+  }
 
   try {
     const result = await pool.query(
