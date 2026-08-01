@@ -5,11 +5,11 @@ const cars = [
 ];
 
 const reviews = [
-  { id: 1, carId: 1, rating: 4 },
-  { id: 2, carId: 1, rating: 5 },
-  { id: 3, carId: 1, rating: 3 },
-  { id: 4, carId: 3, rating: 5 },
-  { id: 5, carId: 3, rating: 4 },
+  { id: 1, car_id: 1, reviewer_name: 'Alice Johnson', rating: 5, comment: 'Amazing car, very reliable!', created_at: '2024-03-15T10:00:00.000Z' },
+  { id: 2, car_id: 1, reviewer_name: 'Bob Smith', rating: 4, comment: 'Very smooth ride.', created_at: '2024-02-10T08:30:00.000Z' },
+  { id: 3, car_id: 1, reviewer_name: 'Charlie Brown', rating: 3, comment: null, created_at: '2024-01-05T14:00:00.000Z' },
+  { id: 4, car_id: 3, reviewer_name: 'Diana Prince', rating: 5, comment: 'Love this compact car!', created_at: '2024-03-20T09:00:00.000Z' },
+  { id: 5, car_id: 3, reviewer_name: 'Edward Norton', rating: 4, comment: 'Great value for money.', created_at: '2024-01-20T11:00:00.000Z' },
 ];
 
 module.exports = { cars, reviews };
