@@ -2,10 +2,49 @@ const express = require('express');
 const { Pool } = require('pg');
 const { cars, reviews } = require('./db');
 
+const REVIEW_SUBMISSION_WINDOW_MS = 60 * 1000;
+const REVIEW_SUBMISSION_MAX_REQUESTS = 5;
+
+function createRateLimiter({ windowMs, maxRequests, message }) {
+  const requestsByClient = new Map();
+
+  function rateLimiter(req, res, next) {
+    const forwardedFor = req.get('x-forwarded-for');
+    const clientKey = forwardedFor ? forwardedFor.split(',')[0].trim() : req.ip;
+    const now = Date.now();
+    const existingEntry = requestsByClient.get(clientKey);
+
+    if (!existingEntry || now >= existingEntry.expiresAt) {
+      requestsByClient.set(clientKey, { count: 1, expiresAt: now + windowMs });
+      return next();
+    }
+
+    if (existingEntry.count >= maxRequests) {
+      return res.status(429).json({ error: message });
+    }
+
+    existingEntry.count += 1;
+    return next();
+  }
+
+  rateLimiter.reset = () => {
+    requestsByClient.clear();
+  };
+
+  return rateLimiter;
+}
+
 const app = express();
 app.use(express.json());
 
 const pool = new Pool();
+const reviewSubmissionRateLimiter = createRateLimiter({
+  windowMs: REVIEW_SUBMISSION_WINDOW_MS,
+  maxRequests: REVIEW_SUBMISSION_MAX_REQUESTS,
+  message: 'Too many review submissions. Please try again later.',
+});
+
+app.locals.reviewSubmissionRateLimiter = reviewSubmissionRateLimiter;
 
 app.get('/api/cars', (req, res) => {
   const result = cars.map((car) => {
@@ -52,7 +91,7 @@ app.get('/api/cars/:id', (req, res) => {
   });
 });
 
-app.post('/api/cars/:id/reviews', async (req, res) => {
+app.post('/api/cars/:id/reviews', reviewSubmissionRateLimiter, async (req, res) => {
   const { reviewer_name, rating, comment } = req.body ?? {};
   const errors = {};
 
