@@ -113,12 +113,12 @@ export default function ReviewForm() {
 
       {submitError && (
         <div role="alert" className="error-banner">
-          <h2>{submitError}</h2>
+          <p>{submitError}</p>
         </div>
       )}
 
       {success && (
-        <p>Thank you! Your review has been submitted.</p>
+        <p role="status">Thank you! Your review has been submitted.</p>
       )}
 
       <button type="submit">Submit Review</button>
