@@ -45,6 +45,7 @@ export default function CarDetailPage() {
   useEffect(() => {
     setLoading(true);
     setError(null);
+    setPage(1);
     fetch(`/api/cars/${id}/reviews`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

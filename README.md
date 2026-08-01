@@ -78,11 +78,21 @@ Returns a single car by its identifier.
   "make": "Toyota",
   "model": "Camry",
   "year": 2022,
-  "thumbnail_url": "https://example.com/camry.jpg",
-  "review_count": 3,
-  "avg_rating": 4
+  "description": "Reliable midsize sedan with excellent fuel economy.",
+  "averageRating": 4.7,
+  "reviewCount": 3
 }
 ```
+
+| Field           | Type           | Notes                                                          |
+| --------------- | -------------- | -------------------------------------------------------------- |
+| `id`            | `number`       | Unique car identifier                                          |
+| `make`          | `string`       | Manufacturer name                                              |
+| `model`         | `string`       | Model name                                                     |
+| `year`          | `number`       | Four-digit model year                                          |
+| `description`   | `string`       | Short description of the car                                   |
+| `averageRating` | `number\|null` | Mean rating rounded to 1 decimal place; `null` if no reviews  |
+| `reviewCount`   | `number`       | Integer count of reviews (≥ 0)                                 |
 
 **Error responses**
 
@@ -106,8 +116,8 @@ Returns all reviews for a car, ordered newest-first (`created_at` DESC).
 
 | Parameter | Type     | Default | Notes                                      |
 | --------- | -------- | ------- | ------------------------------------------ |
-| `page`    | `number` | `1`     | 1-based page index                         |
-| `limit`   | `number` | `20`    | Reviews per page; maximum 100              |
+| `page`    | `number` | `1`     | 1-based page index; only used when `limit` is also provided |
+| `limit`   | `number` | all     | If omitted, all reviews are returned; when provided, slices the sorted list to that many per page |
 
 **Response** — `200 OK`, `Content-Type: application/json`
 
@@ -132,7 +142,7 @@ An empty array `[]` is returned when the car exists but has no reviews.
 | `car_id`        | `number` | Foreign key to the car            |
 | `reviewer_name` | `string` | Display name of the reviewer      |
 | `rating`        | `number` | Integer in the range **1–5**      |
-| `comment`       | `string` | Review body text                  |
+| `comment`       | `string\|null` | Review body text; `null` if no comment was left |
 | `created_at`    | `string` | ISO 8601 timestamp (UTC)          |
 
 Reviews are always ordered **newest-first** by `created_at`.
