@@ -15,11 +15,12 @@ export default function CarDetail({ carId }) {
       })
       .then((data) => {
         if (data) setCar(data);
-      });
+      })
+      .catch(() => setNotFound(true));
   }, [carId]);
 
   if (notFound) {
-    return <p>Car not found</p>;
+    return <h2>Car not found</h2>;
   }
 
   if (!car) {
