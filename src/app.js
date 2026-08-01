@@ -67,7 +67,7 @@ app.post('/api/cars/:id/reviews', async (req, res) => {
   const trimmedComment = comment.trim();
   const carId = parseInt(req.params.id, 10);
 
-  if (isNaN(carId)) {
+  if (isNaN(carId) || carId <= 0) {
     return res.status(404).json({ error: 'Car not found' });
   }
 

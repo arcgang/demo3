@@ -57,3 +57,53 @@ Returns all cars with aggregated review statistics.
 | `avg_rating`    | `number\|null`  | Mean rating rounded to 2 decimal places; `null` if no reviews |
 
 Ratings are in the range **1–5**.
+
+---
+
+### `POST /api/cars/:id/reviews`
+
+Submits a new review for the car identified by `:id`.
+
+**Request body** — `Content-Type: application/json`
+
+```json
+{
+  "reviewer_name": "Jane Doe",
+  "rating": 4,
+  "comment": "Great car, very comfortable ride."
+}
+```
+
+| Field           | Type     | Constraints                        |
+| --------------- | -------- | ---------------------------------- |
+| `reviewer_name` | `string` | Required; non-blank after trimming |
+| `rating`        | `number` | Required; integer in range 1–5     |
+| `comment`       | `string` | Required; ≥ 10 characters after trimming |
+
+**Response — `201 Created`**
+
+```json
+{
+  "id": 7,
+  "car_id": 1,
+  "reviewer_name": "Jane Doe",
+  "rating": 4,
+  "comment": "Great car, very comfortable ride.",
+  "created_at": "2026-08-01T12:00:00.000Z"
+}
+```
+
+**Response — `400 Bad Request`** (validation failure)
+
+```json
+{
+  "errors": {
+    "rating": "Rating must be an integer between 1 and 5",
+    "comment": "Comment must be at least 10 characters"
+  }
+}
+```
+
+**Response — `404 Not Found`** — `:id` is non-numeric or ≤ 0.
+
+**Response — `500 Internal Server Error`** — database error.
