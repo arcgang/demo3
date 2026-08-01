@@ -72,7 +72,7 @@ app.get('/api/cars/:id/reviews', (req, res) => {
 
   if (rawPage !== undefined) {
     const parsed = parseInt(rawPage, 10);
-    if (isNaN(parsed) || String(parsed) !== rawPage.trim()) {
+    if (isNaN(parsed) || parsed <= 0 || String(parsed) !== rawPage.trim()) {
       return res.status(400).json({ error: 'page must be a positive integer.' });
     }
     page = parsed;
@@ -80,7 +80,7 @@ app.get('/api/cars/:id/reviews', (req, res) => {
 
   if (rawLimit !== undefined) {
     const parsed = parseInt(rawLimit, 10);
-    if (isNaN(parsed) || String(parsed) !== rawLimit.trim()) {
+    if (isNaN(parsed) || parsed <= 0 || String(parsed) !== rawLimit.trim()) {
       return res.status(400).json({ error: 'limit must be a positive integer.' });
     }
     limit = parsed;
