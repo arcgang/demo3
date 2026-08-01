@@ -1,11 +1,24 @@
 const express = require('express');
+const { rateLimit } = require('express-rate-limit');
 const { Pool } = require('pg');
 const { cars, reviews } = require('./db');
+
+const REVIEW_SUBMISSION_WINDOW_MS = 60 * 1000;
+const REVIEW_SUBMISSION_MAX_REQUESTS = 100;
 
 const app = express();
 app.use(express.json());
 
 const pool = new Pool();
+const reviewSubmissionRateLimiter = rateLimit({
+  windowMs: REVIEW_SUBMISSION_WINDOW_MS,
+  limit: REVIEW_SUBMISSION_MAX_REQUESTS,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many review submissions. Please try again later.' },
+});
+
+app.locals.reviewSubmissionRateLimiter = reviewSubmissionRateLimiter;
 
 app.get('/api/cars', (req, res) => {
   const result = cars.map((car) => {
@@ -52,7 +65,7 @@ app.get('/api/cars/:id', (req, res) => {
   });
 });
 
-app.post('/api/cars/:id/reviews', async (req, res) => {
+app.post('/api/cars/:id/reviews', reviewSubmissionRateLimiter, async (req, res) => {
   const { reviewer_name, rating, comment } = req.body ?? {};
   const errors = {};
 

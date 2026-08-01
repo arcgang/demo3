@@ -30,10 +30,14 @@ const CREATED_ROW = {
 };
 
 describe('POST /api/cars/:id/reviews', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // Default: all pool.query calls resolve successfully with the created row.
     // Individual tests that need a different behaviour re-assign mockPoolQuery.
     mockPoolQuery = jest.fn().mockResolvedValue({ rows: [CREATED_ROW] });
+    await Promise.all([
+      app.locals.reviewSubmissionRateLimiter.resetKey('127.0.0.1'),
+      app.locals.reviewSubmissionRateLimiter.resetKey('::ffff:127.0.0.1'),
+    ]);
   });
 
   // ---------------------------------------------------------------------------
@@ -153,6 +157,25 @@ describe('POST /api/cars/:id/reviews', () => {
         .post(`/api/cars/${CAR_ID}/reviews`)
         .send({ ...VALID_BODY, comment: tenCharComment });
       expect(res.status).toBe(201);
+    });
+
+    it('returns 429 after too many submissions from the same client within the rate-limit window', async () => {
+      for (let attempt = 0; attempt < 100; attempt += 1) {
+        const res = await request(app)
+          .post(`/api/cars/${CAR_ID}/reviews`)
+          .send(VALID_BODY);
+        expect(res.status).toBe(201);
+      }
+
+      const rateLimitedResponse = await request(app)
+        .post(`/api/cars/${CAR_ID}/reviews`)
+        .send(VALID_BODY);
+
+      expect(rateLimitedResponse.status).toBe(429);
+      expect(rateLimitedResponse.body).toEqual({
+        error: 'Too many review submissions. Please try again later.',
+      });
+      expect(mockPoolQuery).toHaveBeenCalledTimes(100);
     });
   });
 
