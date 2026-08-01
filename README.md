@@ -60,28 +60,99 @@ Ratings are in the range **1–5**.
 
 ---
 
-### GET /api/cars/:id
+### `GET /api/cars/:id`
 
-Returns details for a single car including its computed review stats.
+Returns a single car by its identifier.
 
-**Response** `200 OK`
+**Path parameters**
+
+| Parameter | Type     | Notes                 |
+| --------- | -------- | --------------------- |
+| `id`      | `number` | Unique car identifier |
+
+**Response** — `200 OK`, `Content-Type: application/json`
+
 ```json
 {
   "id": 1,
   "make": "Toyota",
   "model": "Camry",
   "year": 2022,
-  "description": "A reliable sedan.",
-  "averageRating": 4.3,
-  "reviewCount": 6
+  "description": "Reliable midsize sedan with excellent fuel economy.",
+  "averageRating": 4.7,
+  "reviewCount": 3
 }
 ```
 
-- `averageRating` — average of all review ratings rounded to one decimal place; `null` when there are no reviews.
-- `reviewCount` — total number of reviews for this car.
+| Field           | Type           | Notes                                                         |
+| --------------- | -------------- | ------------------------------------------------------------- |
+| `id`            | `number`       | Unique car identifier                                         |
+| `make`          | `string`       | Manufacturer name                                             |
+| `model`         | `string`       | Model name                                                    |
+| `year`          | `number`       | Four-digit model year                                         |
+| `description`   | `string`       | Short description of the car                                  |
+| `averageRating` | `number\|null` | Mean rating rounded to 1 decimal place; `null` if no reviews |
+| `reviewCount`   | `number`       | Integer count of reviews (≥ 0)                               |
 
-**Errors**
-- `404 Not Found` — no car with the given id exists.
+**Error responses**
+
+| Status | Condition                  |
+| ------ | -------------------------- |
+| `404`  | No car with the given `id` |
+
+---
+
+### `GET /api/cars/:id/reviews`
+
+Returns all reviews for a car, ordered newest-first (`created_at` DESC).
+
+**Path parameters**
+
+| Parameter | Type     | Notes                 |
+| --------- | -------- | --------------------- |
+| `id`      | `number` | Unique car identifier |
+
+**Query parameters**
+
+| Parameter | Type     | Default | Notes                                                                            |
+| --------- | -------- | ------- | -------------------------------------------------------------------------------- |
+| `page`    | `number` | `1`     | 1-based page index; only used when `limit` is also provided                     |
+| `limit`   | `number` | all     | If omitted, all reviews are returned; when provided, slices the sorted list page |
+
+**Response** — `200 OK`, `Content-Type: application/json`
+
+```json
+[
+  {
+    "id": 7,
+    "car_id": 1,
+    "reviewer_name": "Alice",
+    "rating": 5,
+    "comment": "Great car, very reliable.",
+    "created_at": "2025-06-15T10:30:00.000Z"
+  }
+]
+```
+
+An empty array `[]` is returned when the car exists but has no reviews.
+
+| Field           | Type          | Notes                                            |
+| --------------- | ------------- | ------------------------------------------------ |
+| `id`            | `number`      | Unique review identifier                         |
+| `car_id`        | `number`      | Foreign key to the car                           |
+| `reviewer_name` | `string`      | Display name of the reviewer                     |
+| `rating`        | `number`      | Integer in the range **1–5**                     |
+| `comment`       | `string\|null`| Review body text; `null` if no comment was left  |
+| `created_at`    | `string`      | ISO 8601 timestamp (UTC)                         |
+
+Reviews are always ordered **newest-first** by `created_at`.
+
+**Error responses**
+
+| Status | Condition                   |
+| ------ | --------------------------- |
+| `400`  | Invalid `page`/`limit` value |
+| `404`  | No car with the given `id`  |
 
 ---
 
@@ -99,11 +170,11 @@ Submits a new review for the car identified by `:id`.
 }
 ```
 
-| Field           | Type     | Constraints                        |
-| --------------- | -------- | ---------------------------------- |
-| `reviewer_name` | `string` | Required; non-blank after trimming |
-| `rating`        | `number` | Required; integer in range 1–5     |
-| `comment`       | `string` | Required; ≥ 10 characters after trimming |
+| Field           | Type     | Constraints                                |
+| --------------- | -------- | ------------------------------------------ |
+| `reviewer_name` | `string` | Required; non-blank after trimming         |
+| `rating`        | `number` | Required; integer in range 1–5             |
+| `comment`       | `string` | Required; at least 10 characters (trimmed) |
 
 **Response — `201 Created`**
 
@@ -118,17 +189,10 @@ Submits a new review for the car identified by `:id`.
 }
 ```
 
-**Response — `400 Bad Request`** (validation failure)
+**Error responses**
 
-```json
-{
-  "errors": {
-    "rating": "Rating must be an integer between 1 and 5",
-    "comment": "Comment must be at least 10 characters"
-  }
-}
-```
-
-**Response — `404 Not Found`** — `:id` is non-numeric or ≤ 0.
-
-**Response — `500 Internal Server Error`** — database error.
+| Status | Condition                                 |
+| ------ | ----------------------------------------- |
+| `400`  | Request body validation failed            |
+| `404`  | `:id` is non-numeric, invalid, or missing |
+| `500`  | Database insert failure                   |

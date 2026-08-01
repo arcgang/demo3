@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import ReviewForm from './components/ReviewForm';
+import CarDetailPage from './pages/CarDetailPage';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -10,7 +10,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/cars/:id" element={<ReviewForm />} />
+        <Route path="/cars/:id" element={<CarDetailPage />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
