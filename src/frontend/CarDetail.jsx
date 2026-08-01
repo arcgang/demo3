@@ -1,0 +1,42 @@
+import { useEffect, useState } from 'react';
+
+export default function CarDetail({ carId }) {
+  const [car, setCar] = useState(null);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    fetch(`/api/cars/${carId}`)
+      .then((res) => {
+        if (!res.ok) {
+          setNotFound(true);
+          return null;
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data) setCar(data);
+      });
+  }, [carId]);
+
+  if (notFound) {
+    return <p>Car not found</p>;
+  }
+
+  if (!car) {
+    return <p>Loading...</p>;
+  }
+
+  return (
+    <div>
+      <h1>{car.year} {car.make} {car.model}</h1>
+      <p>{car.description}</p>
+      <div>
+        {car.averageRating != null
+          ? <span>{car.averageRating.toFixed(1)} / 5</span>
+          : null}
+        <span>{car.reviewCount} reviews</span>
+      </div>
+      <button>Write a Review</button>
+    </div>
+  );
+}
