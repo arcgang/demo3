@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-export default function CarDetail({ carId }) {
+export default function CarDetail() {
+  const { id } = useParams();
   const [car, setCar] = useState(null);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/cars/${carId}`)
+    fetch(`/api/cars/${id}`)
       .then((res) => {
         if (!res.ok) {
           setNotFound(true);
@@ -17,7 +19,7 @@ export default function CarDetail({ carId }) {
         if (data) setCar(data);
       })
       .catch(() => setNotFound(true));
-  }, [carId]);
+  }, [id]);
 
   if (notFound) {
     return <h2>Car not found</h2>;
